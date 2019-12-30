@@ -1,0 +1,108 @@
+@page "/ToDoPage"
+@using Blazor.Demo.Classes
+
+<h3>ToDo Page</h3>
+<br/>
+<ToDoComponent @ref="ToDoComponentControl" RemoveTaskChanged="RemoveTask" Tasks="Tasks" />
+
+<div class="container">
+    <div class="row">
+                <div class="col">
+            <input class="form-control"
+                   placeholder="Add a Task"
+                   @bind-value="newTaskDescription"/>
+        </div>
+        <div class="col">
+            <button class="btn btn-primary"
+                    type="button"
+                    @onclick="AddTaskToChild" >
+                    Add Task To Child
+            </button>
+        </div>
+    </div>
+</div>
+
+<br/>
+@*
+<p>
+    Tasks: <b>@(Tasks.Count())</b>
+    Completed:
+    <b>@(Tasks.Where(x=>x.IsComplete==true).Count())</b>
+</p>
+
+<ul class="list-group">
+    @foreach(var Task in Tasks){
+            <li @key="Task" class="list-group-item form-check form-check-inline">
+                <button class="btn btn-link" type="button" @onclick="(()=> RemoveTask(Task))">
+                    [Delete]
+                </button>
+            <input type="checkbox"
+                   class="form-check-input"
+                   @bind-value="Task.IsComplete"/>
+            <label class="form-check-label"
+                   for="inlineCheckbox1">
+                   @Task.TaskDescription
+            </label>
+        </li>
+    }
+</ul>
+<br/>
+<div class="container">
+    <div class="row">
+                <div class="col">
+            <input class="form-control"
+                   placeholder="Add a Task"
+                   @bind-value="newTaskDescription"/>
+        </div>
+        <div class="col">
+            <button class="btn btn-primary"
+                    type="button"
+                    @onclick="AddTask" >
+                    Add Task
+            </button>
+        </div>
+    </div>
+</div>
+*@
+
+
+
+@code{
+    private List<TaskItem> Tasks = new List<TaskItem>();
+   private string newTaskDescription; 
+   private ToDoComponent ToDoComponentControl;
+   protected string SelectedColor {get;set;} = "Green";
+   List<string> Options = new List<string>() {
+       "Green","Red","Blue"};
+   private void AddTaskToChild(){
+       if(!string.IsNullOrEmpty(newTaskDescription)){
+       var NewTask = new TaskItem();
+       NewTask.TaskDescription =newTaskDescription;
+       NewTask.IsComplete = false;
+       ToDoComponentControl.AddNewTask(NewTask);
+       newTaskDescription = string.Empty;
+       }
+   }
+
+
+   private void AddTask(){
+              if(!string.IsNullOrEmpty(newTaskDescription)){
+       var NewTask = new TaskItem();
+       NewTask.TaskDescription =newTaskDescription;
+       NewTask.IsComplete = false;
+       Tasks.Add(NewTask);
+       newTaskDescription = string.Empty;
+              }
+   }
+
+   private void RemoveTask(TaskItem item){
+       Tasks.Remove(item);
+   }
+
+    protected override void OnInitialized(){
+        Tasks.Add(new TaskItem(){
+            TaskDescription = "Task One",
+            IsComplete = false
+        });
+    }
+}

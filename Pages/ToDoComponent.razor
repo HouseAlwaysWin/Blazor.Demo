@@ -1,0 +1,40 @@
+@using Blazor.Demo.Classes
+
+
+<p>
+    Tasks: <b>@(Tasks.Count())</b>
+    Completed:
+    <b>@(Tasks.Where(x=>x.IsComplete==true).Count())</b>
+</p>
+
+
+<ul class="list-group">
+    @foreach(var Task in Tasks){
+        <li class="list-group-item form-check form-check-inline" >
+                <button class="btn btn-link" type="button" @onclick="(()=> RemoveTask(Task))">
+                    [Delete]
+                </button>
+            <input type="checkbox"
+                   class="form-check-input"
+                   @bind-value="Task.IsComplete"/>c
+            <label class="form-check-labe"
+                    for="inlineCheckbox1">
+                    @Task.TaskDescription
+            </label>
+        </li>
+    }
+</ul>
+
+
+@code{
+    [Parameter] public List<TaskItem> Tasks {get;set;}
+    [Parameter] public EventCallback<TaskItem> RemoveTaskChanged {get;set;}
+    
+    private async Task RemoveTask(TaskItem item){
+        await RemoveTaskChanged.InvokeAsync(item);
+    }
+
+    public void AddNewTask(TaskItem item){
+            Tasks.Add(item);
+        }
+}
