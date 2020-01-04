@@ -49,44 +49,49 @@ else
             Add New Forecast
         </button>
     </p>
-    @if(ShowPopup){
-        <div class="modal" tabindex="-1" style="display:block" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 class="modal-title">Edit Forecast</h3>
-                        <button type="button" class="close"
-                                onclick="ClosePopup">
-                                <span aria-hidden="true"> </span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <input class="form-control" type="text"
-                                placeholder="Celsius forecast"
-                                @bind="objWeatherForecast.TemperatureC"/>
-                        <input class="form-control" type="text"
-                                placeholder="Fahrenheit forecast"
-                                @bind="objWeatherForecast.TemperatureF"/>
-                         <input class="form-control" type="text"
-                                placeholder="Summary"
-                                @bind="objWeatherForecast.Summary"/>
-                        <br />
-                        <button class="btn btn-primary"
-                                @onclick="SaveForecast">
-                                Save
-                                </button>
-                        @if(objWeatherForecast.Id >0){
-                            <button class="btn btn-primary"
-                                    @onclick="DeleteForecast">
-                                    Delete
-                                    </button>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
+    <TableTemplate Items="forecasts" Context="forecast">
+        <TableHeader>
+            <th>Date of Forecast</th>
+            <th>Summary</th>
+            <th></th>
+        </TableHeader>
+        <RowTemplate>
+            <td><b>@forecast.Date.ToLongDateString()</b></td>
+            <td><i>@forecast.Summary</i></td>
+            <td>
+                <button class="btn btn-primary"
+                        @onclick="(()=>EditForecast(forecast))">
+                        Edit
+                </button>
+            </td>
+        </RowTemplate>
+    </TableTemplate>
+    <FormDialog Show="ShowNewRecordPopup"
+                objWeatherForecast="objWeatherForecast"
+                DeleteForecast="DeleteForecast"
+                ClosePopup="ClosePopup"
+                SaveForecast="SaveForecast">
+                <HeaderContent>
+                    <h3 class="modal-title"
+                        style="color:darkred">
+                        Create Forecast
+                        </h3>
+                </HeaderContent>
+                </FormDialog>
+    <FormDialog Show="ShowEditRecordPopup"
+                objWeatherForecast="objWeatherForecast"
+                DeleteForecast="DeleteForecast"
+                ClosePopup="ClosePopup"
+                SaveForecast="SaveForecast">
+                <HeaderContent>
+                    <h3 class="modal-title"
+                        style="color:darkred">
+                        Edit Forecast
+                        </h3>
+                </HeaderContent>
 
-    }
+                </FormDialog>
+     
 
 }
 </Authorized>
@@ -97,37 +102,50 @@ else
 
 </AuthorizeView>
 @code {
+    bool ShowNewRecordPopup =false;
+    bool ShowEditRecordPopup = false;
 
     [CascadingParameter]
     private Task<AuthenticationState> authentication {get;set;}
     private List<WeatherForecast> forecasts;
 
+        List<WeatherForecastOptions> SummaryOptions = new List<WeatherForecastOptions>(){
+            new WeatherForecastOptions(){ OptionName = "Select...",OptionValue=" "},
+            new WeatherForecastOptions(){ OptionName = "Hot...",OptionValue="Hot"},
+            new WeatherForecastOptions(){ OptionName = "Mild...",OptionValue="Mild"},
+            new WeatherForecastOptions(){ OptionName = "Cold...",OptionValue="Cold"},
+            };
+
     WeatherForecast objWeatherForecast = new WeatherForecast();
-    bool ShowPopup = false;
     void ClosePopup(){
-        ShowPopup = false;
+    
+        ShowNewRecordPopup = false;
+        ShowEditRecordPopup = false;
     }
 
     void AddNewForecast(){
         objWeatherForecast = new WeatherForecast();
         objWeatherForecast.Id = 0;
-        ShowPopup = true;
+        ShowNewRecordPopup = true;
     }
 
     void EditForecast(WeatherForecast weatherForecast){
         objWeatherForecast = weatherForecast;
-        ShowPopup = true;
+        ShowEditRecordPopup = true;
     }
 
     async Task DeleteForecast(){
-        ShowPopup = false;
+        ShowNewRecordPopup = false;
+        ShowEditRecordPopup = false;
+
         var user = (await authentication).User;
         var result = @Service.DeleteForecastAsync(objWeatherForecast);
         forecasts = await @Service.GetForecastAsync(user.Identity.Name);
     }
 
     async Task SaveForecast(){
-        ShowPopup = false;
+         ShowNewRecordPopup = false;
+        ShowEditRecordPopup = false;
         var user = (await authentication).User;
         if(objWeatherForecast.Id == 0){
             WeatherForecast objNewWeatherForecast = new WeatherForecast();

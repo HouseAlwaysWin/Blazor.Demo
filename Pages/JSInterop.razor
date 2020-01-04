@@ -1,0 +1,38 @@
+@page "/JSInterop"
+@inject IJSRuntime JSRuntime
+
+<h1>Javascript Interop</h1>
+<div>
+    <button type="button"
+            class="btn btn-primary"
+            @onclick="HelloWorld">
+            Hello World
+            </button>
+</div>
+<br/>
+<div>
+    <button type="button"
+            class="btn btn-primary"
+            @onclick="SayMyName">
+            Say My Name
+            </button>
+            <br/>
+            <p>@strSayMyName</p>
+</div>
+
+@code{
+    public async void HelloWorld(){
+        await JSRuntime.InvokeAsync<string>("exampleJsFunction.helloWorld",null);
+    }
+
+    string strSayMyName ="";
+    public async void SayMyName(){
+        var NameFromJavaScript =
+            await JSRuntime.InvokeAsync<string>(
+                "example2JsFunction.showPrompt",
+                "What's your name?"
+                );
+        strSayMyName = $"Your name is:{NameFromJavaScript}";
+        StateHasChanged();
+    }
+}

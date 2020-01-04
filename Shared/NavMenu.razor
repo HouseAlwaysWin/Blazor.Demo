@@ -1,4 +1,14 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@using Blazor.Demo.SessionState 
+@inject CounterState CounterState
+@implements IDisposable
+
+<div>
+    <p style="coloor:white">
+        Counter State: @CounterState.CurrentCount()
+    </p>
+</div>
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Blazor.Demo</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -22,6 +32,16 @@
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
             </NavLink>
         </li>
+         <li class="nav-item px-3">
+            <NavLink class="nav-link" href="JSInterop">
+                <span class="oi oi-list-rich" aria-hidden="true"></span>JSInterop 
+            </NavLink>
+        </li>
+          <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Popup">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Popup
+            </NavLink>
+        </li>
     </ul>
 </div>
 
@@ -29,6 +49,19 @@
     private bool collapseNavMenu = true;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override void OnInitialized(){
+        CounterState.StateChanged += OnCounterStateAdvancedStateChanged;
+    }
+
+    void OnCounterStateAdvancedStateChanged(object sneder,EventArgs e){
+         StateHasChanged();
+    }
+
+    void IDisposable.Dispose(){
+        CounterState.StateChanged -=
+        OnCounterStateAdvancedStateChanged;
+    }
 
     private void ToggleNavMenu()
     {

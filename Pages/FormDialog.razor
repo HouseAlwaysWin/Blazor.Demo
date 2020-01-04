@@ -1,0 +1,95 @@
+@using Blazor.Demo.Data
+ @if(Show){
+        <div class="modal" tabindex="-1" style="display:block" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">@HeaderContent</h3>
+                        <button type="button" class="close"
+                                onclick="ClosePopup">
+                                <span aria-hidden="true"> </span>
+                        </button>
+                    </div>
+
+                        <EditForm Context="formContext"
+                                   Model="objWeatherForecast"
+                                   OnValidSubmit="SaveForecast">
+                        <DataAnnotationsValidator/>
+                        @* <ValidationSummary/> *@
+                        <ul class="validation-errors">
+                            @foreach(var message in formContext.GetValidationMessages()
+                            .Where(x=>!x.Contains("Summary"))){
+                                <li class="validation-message">@message</li>
+                            }
+                        </ul>
+
+                    <div class="modal-body">
+                        <p>
+                            <label for="Date">Date:</label>
+                            <InputDate id="Date" class="form-control"
+                                        placeholder="Date"
+                                        @bind-Value="objWeatherForecast.Date" />
+                        </p>
+                        <p>
+                            <label for="TemperatureC">Celsius:</label>
+                            <InputNumber id="TemperatureC" class="form-control"
+                                        placeholder="TemperatureC"
+                                        @bind-Value="objWeatherForecast.TemperatureC" />
+ 
+                        </p>
+                        <p>
+                            <label for="TemperatureF">Celsius:</label>
+                            <InputNumber id="TemperatureF" class="form-control"
+                                        placeholder="TemperatureF"
+                                        @bind-Value="objWeatherForecast.TemperatureF" />
+ 
+                        </p>
+                        <p>
+                            <label for="Summary">Summary:</label>
+                            <InputSelect id="Summary" class="form-control"
+                                        placeholder="Summary"
+                                        @bind-Value="objWeatherForecast.Summary" >
+                            @foreach(var option in @SummaryOptions){
+
+                                <option value="@option.OptionValue">
+                                    @option.OptionName
+                                </option>
+                            }
+                            </InputSelect>
+                            <ValidationMessage For="@(()=>objWeatherForecast.Summary)"/>
+                        </p>
+                        <br />
+
+                        <button class="btn btn-primary"
+                                type="submit">
+                                Save
+                                </button>
+                        @if(objWeatherForecast.Id >0){
+                            <button class="btn btn-primary"
+                                    @onclick="DeleteForecast">
+                                    Delete
+                                    </button>
+                        }
+
+                    </div>
+                        </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+
+@code{
+    [Parameter] public RenderFragment HeaderContent {get;set;}
+    [Parameter] public bool Show {get;set;}
+    [Parameter] public WeatherForecast objWeatherForecast {get;set;}
+    [Parameter] public EventCallback DeleteForecast { get;set;}
+    [Parameter] public EventCallback ClosePopup {get;set;}
+    [Parameter] public EventCallback SaveForecast {get;set;}
+    List<WeatherForecastOptions> SummaryOptions = new List<WeatherForecastOptions>(){
+            new WeatherForecastOptions(){ OptionName = "Select...",OptionValue=" "},
+            new WeatherForecastOptions(){ OptionName = "Hot...",OptionValue="Hot"},
+            new WeatherForecastOptions(){ OptionName = "Mild...",OptionValue="Mild"},
+            new WeatherForecastOptions(){ OptionName = "Cold...",OptionValue="Cold"},
+            };
+}

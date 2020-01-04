@@ -1,0 +1,56 @@
+@page "/Popup"
+@inject IJSRuntime JSRuntime
+
+<h1>Popup</h1>
+<button class="btn btn-primary"
+        @onclick="ShowDynamicPopup">
+        Show Dynamic Popup
+        </button>
+
+@if(showDynamicPopup){
+    <div tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        Blazor Dynamic Popup
+                    </h3>
+                    <button type="button"
+                            class="close"
+                            @onclick="HideDynamicPopup">
+                            <span aria-hidden="true">
+                                X
+                            </span>
+                    </button>
+                </div>
+                 <div @ref="modalBody"
+                      class="modal-body">
+                      
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+    ElementReference modalBody;
+    bool showDynamicPopup = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender){
+        await setDivContent(modalBody);
+    }
+
+    public async Task setDivContent(ElementReference elementRef){
+        await JSRuntime.InvokeAsync<object>(
+            "popupJsFunctions.populateDiv",elementRef);
+    }
+
+    void ShowDynamicPopup(){
+        showDynamicPopup = true;
+    }
+
+    void HideDynamicPopup(){
+        showDynamicPopup = false;
+    }
+
+}
